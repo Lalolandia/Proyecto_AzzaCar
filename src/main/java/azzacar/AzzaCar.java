@@ -1,5 +1,6 @@
 
 package azzacar;
+import static azzacar.Reportes.reporteCantidadVehiculos;
 import javax.swing.JOptionPane;
 import javax.swing.JOptionPane;
 import java.io.BufferedReader;
@@ -17,12 +18,16 @@ import java.util.ArrayList;
 public class AzzaCar {
     private static final String RUTA_USUARIOS = "usuarios.txt";
     private static final ArrayList<Usuario> listaClientes = new ArrayList<>();
+    private static final String RUTA_VEHICULOS = "vehiculos.txt";
+    private static final ArrayList<Vehiculo> listaVehiculos = new ArrayList<>();
+    
     /*
     ClassLoader classLoader = getClass().getClassLoader();
     File file = new File(classLoader.getResource(RUTA_USUARIOS).getFile());
-*/
+    */
     public static void main(String[] args) {
         cargarUsuariosDesdeArchivo();
+        GestionVehiculos.guardarVehiculosEnArchivo();
         
         
          int opcion;
@@ -45,7 +50,7 @@ public class AzzaCar {
                     mostrarInformacionEmpresa();
                     break;
                 case 4:
-                    Usuario.mostrarClientes();
+                    Usuario.cargarUsuariosDesdeArchivo(RUTA_USUARIOS);
                     break;
                 case 5:
                     gestionarVehiculos(usuarioActual);
@@ -53,8 +58,10 @@ public class AzzaCar {
                 default:
                     JOptionPane.showMessageDialog(null, "Opción no válida. Por favor, elija nuevamente.");
                     break;
+                    
             }       
                     guardarUsuariosEnArchivo();
+                    
         } while (opcion != 0);
     }
     
@@ -73,7 +80,7 @@ public class AzzaCar {
                     GestionVehiculos.crearVehiculo(usuarioActual);
                     break;
                 case 2:
-                    GestionVehiculos.mostrarVehiculos();
+                    GestionVehiculos.cargarVehiculosDesdeArchivo(RUTA_VEHICULOS);
                     break;
                 case 3:
                     GestionVehiculos.reservarVehiculo(usuarioActual);
@@ -84,6 +91,9 @@ public class AzzaCar {
                 case 5:
                     GestionVehiculos.actualizarEstadoVehiculo(usuarioActual, usuarioActual, false);
                 break;
+                case 6:
+                    reporteCantidadVehiculos(listaVehiculos);
+                    break;
                 
                 default:
                     JOptionPane.showMessageDialog(null, "Opción no válida. Por favor, elija nuevamente.");
@@ -94,7 +104,7 @@ public class AzzaCar {
     }
 
     private static int mostrarSubMenuVehiculos() {
-        String[] opciones = { "Salir","Crear Vehículo", "Mostrar Vehículos", "Reservar Vehículo", "Vender Vehículo", "Actualizar un Vehiculo"};
+        String[] opciones = { "Salir","Crear Vehículo", "Mostrar Vehículos", "Reservar Vehículo", "Vender Vehículo", "Actualizar un Vehiculo","Reportes de Veiculos"};
         return JOptionPane.showOptionDialog(null, "Seleccione una opción en la gestión de vehículos:",
                 "Gestión de Vehículos", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opciones, opciones[0]);
     }
@@ -160,6 +170,20 @@ public class AzzaCar {
             e.printStackTrace();
         }
     }
+    public static void crearVehiculo(Usuario vendedor) {
+        String color = JOptionPane.showInputDialog("Ingrese el color del vehículo:");
+        int año = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el año del vehículo:"));
+        int cilindraje = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el cilindraje del vehículo:"));
+        String marca = JOptionPane.showInputDialog("Ingrese la marca del vehículo:");
+        String modelo = JOptionPane.showInputDialog("Ingrese el modelo del vehículo:");
+        double kilometraje = Double.parseDouble(JOptionPane.showInputDialog("Ingrese el kilometraje del vehículo:"));
+        String tipo = JOptionPane.showInputDialog("Ingrese el tipo del vehículo (suv, sedan, hatchback):");
+        String caracteristicas = JOptionPane.showInputDialog("Ingrese las características del vehículo:");
+        String estado = JOptionPane.showInputDialog("Ingrese el Estado del Vehiculo:");
+
+        Vehiculo nuevoVehiculo = new Vehiculo(color, año, cilindraje, marca, modelo, kilometraje, tipo, caracteristicas, estado);
+        listaVehiculos.add(nuevoVehiculo);
+    }
 
     private static void guardarUsuariosEnArchivo() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(RUTA_USUARIOS))) {
@@ -171,6 +195,8 @@ public class AzzaCar {
             JOptionPane.showMessageDialog(null, "Error al guardar usuarios en el archivo.");
             e.printStackTrace();
         }
+        
     }
+    
 }
  

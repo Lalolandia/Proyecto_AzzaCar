@@ -1,10 +1,12 @@
-
 package azzacar;
-
 /**
- *
  * @author Luis
  */
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import javax.swing.JOptionPane;
 import java.util.ArrayList;
 
@@ -21,8 +23,7 @@ class Vehiculo {
     private Usuario cliente;
     private Usuario vendedor;
 
-    public Vehiculo(String color, int año, int cilindraje, String marca, String modelo, double kilometraje,
-                    String tipo, String caracteristicas) {
+    public Vehiculo(String color, int año, int cilindraje, String marca, String modelo, double kilometraje, String tipo, String caracteristicas, String estado1) {
         this.color = color;
         this.año = año;
         this.cilindraje = cilindraje;
@@ -36,7 +37,7 @@ class Vehiculo {
         this.vendedor = null;
     }
 
-    // Getters y setters omitidos para brevedad
+    
 
     public String getColor() {
         return color;
@@ -169,6 +170,8 @@ class Vehiculo {
 
 public class GestionVehiculos {
     private static final ArrayList<Vehiculo> listaVehiculos = new ArrayList<>();
+    private static final String RUTA_VEHICULOS = "vehiculos.txt";
+    
 
     public static void crearVehiculo(Usuario vendedor) {
         String color = JOptionPane.showInputDialog("Ingrese el color del vehículo:");
@@ -179,13 +182,89 @@ public class GestionVehiculos {
         double kilometraje = Double.parseDouble(JOptionPane.showInputDialog("Ingrese el kilometraje del vehículo:"));
         String tipo = JOptionPane.showInputDialog("Ingrese el tipo del vehículo (suv, sedan, hatchback):");
         String caracteristicas = JOptionPane.showInputDialog("Ingrese las características del vehículo:");
+        String estado = JOptionPane.showInputDialog("Ingrese el Estado del Vehiculo:");
 
-        Vehiculo nuevoVehiculo = new Vehiculo(color, año, cilindraje, marca, modelo, kilometraje, tipo, caracteristicas);
+        Vehiculo nuevoVehiculo = new Vehiculo(color, año, cilindraje, marca, modelo, kilometraje, tipo, caracteristicas, estado);
         listaVehiculos.add(nuevoVehiculo);
+        guardarVehiculosEnArchivo();
+        
 
         JOptionPane.showMessageDialog(null, "Vehículo creado exitosamente.");
     }
+    
+     public static void cargarVehiculosDesdeArchivo(String RUTA_VEHICULOS) {
+        try (BufferedReader br = new BufferedReader(new FileReader(RUTA_VEHICULOS))) {
+            listaVehiculos.clear(); // Limpiar la lista antes de cargar vehículos
 
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                Vehiculo vehiculo = parsearLineaYCrearVehiculo(linea);
+                if (vehiculo != null) {
+                    listaVehiculos.add(vehiculo);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al cargar vehículos desde el archivo.");
+            e.printStackTrace();
+        }
+    }
+      public static void guardarVehiculosEnArchivo() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(RUTA_VEHICULOS))) {
+            for (Vehiculo vehiculo : listaVehiculos) {
+                bw.write(convertirVehiculoACadena(vehiculo));
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error al guardar vehículos en el archivo.");
+            e.printStackTrace();
+        }
+    }
+      
+     private static Vehiculo parsearLineaYCrearVehiculo(String linea) {
+    String[] partes = linea.split(",");
+    
+    if (partes.length >= 9) { 
+        
+        String color = partes[0].trim();
+        int año = Integer.parseInt(partes[1].trim());
+        int cilindraje = Integer.parseInt(partes[2].trim());
+        String marca = partes[3].trim();
+        String modelo = partes[4].trim();
+        double kilometraje = Double.parseDouble(partes[5].trim());
+        String tipo = partes[6].trim();
+        String caracteristicas = partes[7].trim();
+        String estado = partes[8].trim();
+
+        
+
+        // Crear y devolver un objeto Vehiculo con los datos parseados
+        return new Vehiculo(color, año, cilindraje, marca, modelo, kilometraje, tipo, caracteristicas, estado);
+    } else {
+        System.out.println("La línea no tiene suficientes partes para crear un vehículo.");
+        return null;
+    }
+}
+     
+     private static String convertirVehiculoACadena(Vehiculo vehiculo) {
+    StringBuilder cadena = new StringBuilder();
+
+    // Añadir cada atributo del vehículo a la cadena, separados por comas
+    cadena.append(vehiculo.getColor()).append(",");
+    cadena.append(vehiculo.getAño()).append(",");
+    cadena.append(vehiculo.getCilindraje()).append(",");
+    cadena.append(vehiculo.getMarca()).append(",");
+    cadena.append(vehiculo.getModelo()).append(",");
+    cadena.append(vehiculo.getKilometraje()).append(",");
+    cadena.append(vehiculo.getTipo()).append(",");
+    cadena.append(vehiculo.getCaracteristicas()).append(",");
+    cadena.append(vehiculo.getEstado());
+
+   
+
+    return cadena.toString();
+}
+
+     
     public static void mostrarVehiculos() {
         if (listaVehiculos.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay vehículos registrados.");

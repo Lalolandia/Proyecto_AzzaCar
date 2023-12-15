@@ -33,7 +33,7 @@ public class Usuario {
         this.telefono = telefono;
         this.contrasena = contrasena;
     }
-    
+    private static final String RUTA_USUARIOS = "usuarios.txt";
 
     // Métodos estáticos para gestionar la lista de clientes
     public static void agregarCliente(Usuario cliente) {
@@ -44,23 +44,35 @@ public class Usuario {
             JOptionPane.showMessageDialog(null, "Ya existe un cliente con esa identificación.");
         }
     }
-    public static void cargarUsuariosDesdeArchivo(String ruta) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(ruta))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                // Parsear la línea y agregar el usuario a la lista
-                Usuario usuario = parsearUsuarioDesdeString(linea);
-                if (usuario != null) {
-                    listaClientes.add(usuario);
-                }
+    
+    
+    public static void cargarUsuariosDesdeArchivo(String RUTA_USUARIOS ) {
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(RUTA_USUARIOS))) {
+        listaClientes.clear(); // Limpiar la lista antes de cargar usuarios
+        StringBuilder lista = new StringBuilder("Clientes registrados:\n");
+
+        String linea;
+        while ((linea = reader.readLine()) != null) {
+            Usuario usuario = parsearUsuarioDesdeString(linea);
+            if (usuario != null) {
+                listaClientes.add(usuario);
+                lista.append(usuario.toString()).append("\n");
             }
-        } catch (IOException e) {
-            System.out.println("Error al cargar usuarios desde el archivo.");
-            e.printStackTrace();
         }
+
+        if (listaClientes.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay clientes registrados.");
+        } else {
+            JOptionPane.showMessageDialog(null, lista.toString());
+        }
+    } catch (IOException e) {
+        System.out.println("Error al cargar usuarios desde el archivo.");
+        e.printStackTrace();
     }
-    public static void guardarUsuariosEnArchivo(String ruta) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ruta))) {
+}
+    public static void guardarUsuariosEnArchivo(String RUTA_USUARIOS) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(RUTA_USUARIOS))) {
             for (Usuario usuario : listaClientes) {
                 writer.write(usuario.convertirAString());
                 writer.newLine();
@@ -75,7 +87,7 @@ public class Usuario {
     public static Usuario parsearUsuarioDesdeString(String linea) {
         String[] partes = linea.split(",");
         if (partes.length == 6) {
-            // Asegúrate de manejar las excepciones al convertir tipos
+            
             String nombre = partes[0].trim();
             String apellidos = partes[1].trim();
             String identificacion = partes[2].trim();
